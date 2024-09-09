@@ -19,4 +19,4 @@ def calc_dice_by_iou(iou):
     return 2 * iou / (1 + iou)
 
 
-print(calc_dice_by_iou(0.537616))
+print(calc_dice_by_iou(0.7847576086653858))
