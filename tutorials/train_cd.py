@@ -9,7 +9,7 @@ from paddlers import transforms as T
 import paddle
 
 # 数据集存放目录
-DATA_DIR = '/home/pkc/AJ/2024/datasets/2408/wound/crop_train'
+DATA_DIR = '/home/pkc/AJ/2024/datasets/2409/wound/train/train0822'
 # 训练集`file_list`文件路径
 TRAIN_FILE_LIST_PATH = '{}/train.txt'.format(DATA_DIR)
 # 验证集`file_list`文件路径
@@ -31,6 +31,8 @@ train_transforms = [
         aspect_ratio=[0.5, 2.0],
         # 裁剪区域相对原始影像长宽比例在一定范围内变动，最小不低于原始长宽的1/5
         scaling=[0.2, 1.0]),
+    # 随机交换
+    T.RandomSwap(),
     # 以50%的概率实施随机水平翻转
     T.RandomHorizontalFlip(prob=0.5),
     # 将数据归一化到[-1,1]
