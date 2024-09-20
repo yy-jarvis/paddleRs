@@ -71,33 +71,55 @@ eval_dataset = pdrs.datasets.CDDataset(
 # 使用默认参数构建CDNet模型
 # 目前已支持的模型请参考：https://github.com/PaddlePaddle/PaddleRS/blob/develop/docs/intro/model_zoo.md
 # 模型输入参数请参考：https://github.com/PaddlePaddle/PaddleRS/blob/develop/paddlers/tasks/change_detector.py
+
+use_mixed_loss = [('CrossEntropyLoss', 0.8), ('DiceLoss', 0.2)]
 model = pdrs.tasks.cd.CDNet(
+    use_mixed_loss=use_mixed_loss,
+
 )
+
+
+pre_path = '/home/pkc/AJ/2024/datasets/2409/wound/train/train0822/output/cdnet-0.874/best_model'
+
 
 # 制定定步长学习率衰减策略
 lr_scheduler = paddle.optimizer.lr.StepDecay(
-    0.1,
-    step_size=500,
+    0.01,
+    step_size=100,
     # 学习率衰减系数，这里指定每次减半
-    gamma=0.5
+    gamma=0.01
 )
 
 # 构造AdamW优化器
-optimizer = paddle.optimizer.SGD(
-    learning_rate=lr_scheduler,
-    parameters=model.net.parameters()
+optimizer = paddle.optimizer.Adamax(
+    learning_rate=0.01,
+    beta1=0.9,
+    beta2=0.999,
+    epsilon=1e-08,
+    parameters=model.net.parameters(),
+    # weight_decay=0.01,
+    # apply_decay_param_fun=None,
+    # grad_clip=None,
+    # lazy_mode=False,
+    # name=None
 )
+
+
+
 
 # 执行模型训练
 model.train(
-    num_epochs=100,
+    num_epochs=200,
     train_dataset=train_dataset,
     train_batch_size=16,
     eval_dataset=eval_dataset,
     optimizer=optimizer,
-    save_interval_epochs=3,
+    # learning_rate=0.9,   # 0.1
+    # lr_decay_power=0.09,
+    save_interval_epochs=10,
+    pretrain_weights='IMAGENET',
     # 每多少次迭代记录一次日志
-    log_interval_steps=1,
+    log_interval_steps=100,
     save_dir=EXP_DIR,
     # 是否使用early stopping策略，当精度不再改善时提前终止训练
     early_stop=False,
